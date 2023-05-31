@@ -1,0 +1,154 @@
+-- Delete old tables & Procedures
+Drop table Applications;
+Drop table Notifications;
+Drop table Posts;
+Drop table Seeker;
+Drop table Employer;
+Drop Procedure GETKEYWORDS;
+Drop Procedure GETNEXTID;
+Drop Procedure GETNEXTPID;
+Drop Procedure GETNEXTSID;
+Drop Procedure GETPOSTSBYKEYWORD;
+
+-- Create Tables --
+
+Create table Employer(
+EID Number Primary key,
+Name varchar2(50) not null,
+Email varchar2(50) unique not null,
+Password varchar2(50) not null,
+Contact varchar2(11) unique not null,
+Address varchar2(100) not null
+);
+
+Create table Seeker(
+SID Number primary key,
+Name varchar2(50) not null,
+Email varchar2(50) unique not null,
+Password varchar2(50) not null,
+Gender char(1) not null,
+Education varchar2(50) not null,
+Birth_date Date not null,
+Major varchar2(50) not null,
+Experience varchar2(200) not null,
+Skills varchar(200) not null
+);
+
+Create table Posts(
+Description  varchar2(200) not null,
+Required_skills  varchar2(100) not null,
+Preferable_skills  varchar2(100) not null,
+Hours number not null,
+PID number primary key,
+EID number references Employer(EID),
+Title  varchar2(25) not null,
+isintern number(1,0) not null,
+keyword  varchar2(30),
+salary number(6) not null
+);
+
+create table Applications(
+SID number references Seeker(SID),
+PID number references Posts(PID),
+Submission_Date Date,
+Major  varchar2(50) not null,
+Experience  varchar2(200) not null,
+Education  varchar2(200) not null,
+Skills  varchar2(200) not null,
+Primary Key(SID, PID)
+);
+
+create table Notifications(
+SID Number references Seeker(SID),
+PID number references Posts(PID),
+Status  varchar2(200) not null,
+Comment_  varchar2(200) not null,
+Primary key(SID, PID)
+);
+
+-- Procedures
+
+create or replace
+procedure GetKeywords(results out sys_refcursor)
+as
+begin
+open results for
+select distinct KeyWord
+from posts;
+end;
+
+create or replace PROCEDURE getNextPID(PID_ out number)
+as
+begin
+  select max(PID)
+  into PID_
+  from Posts;
+end;
+
+create or replace PROCEDURE getNextSID(S_I_D out number)
+as
+begin
+  select max(sid)
+  into S_I_D
+  from Seeker;
+end;
+
+create or replace PROCEDURE GetNextID(id out number)
+as
+begin
+  select max(EID)
+  into id
+  from Employer;
+end;
+
+create or replace
+procedure GetPostsByKeyword(keyword_ in varchar2, IsInternship in NUMBER, results out sys_refcursor)
+as
+begin
+  open results for
+  select PID, TITLE, Salary
+  from posts
+  where keyword = keyword_ and isintern = isinternship;
+end;
+
+-- Employer Insertions
+
+INSERT INTO Employer VALUES (1, 'Google', 'google@gmail.com', 'GooglePW', '01060486312', 'USA, Washington');
+INSERT INTO Employer VALUES (2, 'Microsoft', 'microsoft@hotmail.com', 'MicrosoftPW', '01020304050', 'Canada, Ontario');
+INSERT INTO Employer VALUES (3, 'Amazon', 'amazon@amazon.com', 'AmazonPW', '01010101010', 'USA, California');
+INSERT INTO Employer VALUES (4, 'Facebook', 'fb@facebook.com', 'FacebookPW', '01010101111', 'USA, New York');
+INSERT INTO Employer VALUES (5, 'Apple', 'apple@apple.com', 'ApplePW', '01011111111', 'Germany, Berlin');
+INSERT INTO Employer VALUES (6, 'Tesla', 'tesla@tesla.com', 'TeslaPW', '01022222222', 'China, Beijing');
+INSERT INTO Employer VALUES (7, 'Netflix', 'netflix@netflix.com', 'NetflixPW', '01030303030', 'USA, California');
+INSERT INTO Employer VALUES (8, 'IBM', 'ibm@ibm.com', 'IBMPW', '01040404040', 'USA, New York');
+INSERT INTO Employer VALUES (9, 'Twitter', 'twitter@twitter.com', 'TwitterPW', '01050505050', 'United Kingdom, London');
+INSERT INTO Employer VALUES (10, 'LinkedIn', 'linkedin@linkedin.com', 'LinkedInPW', '01060606060', 'USA, California');
+INSERT INTO Employer VALUES (11, 'Uber', 'uber@uber.com', 'UberPW', '01070707070', 'Japan, Tokyo');
+
+-- Seeker insertions
+
+INSERT INTO Seeker VALUES (2, 'Sarah Lee', 'sarahlee@gmail.com', 'SarahPW', 'F', 'Bachelor of Science in Electrical Engineering', '12-MAY-97', 'Electrical Engineer', 'Interned at a power plant for 2 summers', 'Power systems analysis, Matlab, Simulink');
+INSERT INTO Seeker VALUES (3, 'John Smith', 'johnsmith@gmail.com', 'JohnPW', 'M', 'Bachelor of Science in Mechanical Engineering', '10-JAN-96', 'Mechanical Engineer', 'Worked on automotive design projects during an internship', 'CAD, Finite Element Analysis, SolidWorks');
+INSERT INTO Seeker VALUES (4, 'Jessica Kim', 'jessicakim@gmail.com', 'JessicaPW', 'F', 'Bachelor of Business Administration in Marketing', '05-NOV-98', 'Marketing Coordinator', 'Managed social media campaigns for a start-up', 'Social Media Marketing, Google Analytics, Market Research');
+INSERT INTO Seeker VALUES (5, 'Ahmed Hassan', 'ahmedhassan@gmail.com', 'AhmedPW', 'M', 'Bachelor of Arts in Human Resources Management', '15-SEP-95', 'HR Recruiter', 'Recruited for a multinational company', 'Talent Acquisition, Interviewing, Onboarding');
+INSERT INTO Seeker VALUES (6, 'Emily Jones', 'emilyjones@gmail.com', 'EmilyPW', 'F', 'Bachelor of Science in Computer Science', '20-FEB-97', 'Web Developer', 'Developed web applications for a software development company', 'HTML, CSS, JavaScript, React');
+INSERT INTO Seeker VALUES (7, 'Michael Chen', 'michaelchen@gmail.com', 'MichaelPW', 'M', 'Bachelor of Science in Finance', '01-JUL-94', 'Investment Banking Analyst', 'Worked as an analyst in investment banking for a year', 'Financial Modeling, Excel, Bloomberg Terminal');
+INSERT INTO Seeker VALUES (8, 'Rachel Lee', 'rachellee@gmail.com', 'RachelPW', 'F', 'Bachelor of Science in Psychology', '12-DEC-96', 'Research Assistant', 'Conducted research on cognitive development for a university lab', 'SPSS, Data Analysis, Research Design');
+INSERT INTO Seeker VALUES (9, 'David Kim', 'davidkim@gmail.com', 'DavidPW', 'M', 'Bachelor of Arts in Journalism', '25-JUN-93', 'Reporter', 'Worked as a reporter for a local news outlet', 'Investigative Journalism, AP Style, News Writing');
+INSERT INTO Seeker VALUES (10, 'Sarah Park', 'sarahpark@gmail.com', 'SarahPW', 'F', 'Bachelor of Education in Secondary Education', '08-AUG-99', 'High School Teacher', 'Taught English and social studies in a high school for 2 years', 'Curriculum Development, Classroom Management, Differentiated Instruction');
+INSERT INTO Seeker Values (11, 'Mahmoud Sayed', 'Mahmoud@gmail.com', 'MahmoudPW', 'M', 'Graduated from Modern Schools', '25-APR-93', 'Software Developer', 'Worked for 10 years at Google', 'C++, NodeJS, NextJS');
+
+-- Posts Insertions
+
+INSERT INTO Posts VALUES ('Software developer needed at Google with experience in Java and Python. Full-time position offering $120,000/year. Additional experience with React and Django is highly desirable.', 'Java, Python, React, Django', 'JavaScript, Node.js, AWS', 8, 1, 1, 'Software Developer', 0, 'Development', 120000);
+
+INSERT INTO Posts VALUES ('Marketing coordinator intern at a start-up. Part-time, $1,500/month. Requires social media marketing, content creation, Google Analytics, and market research.', 'Social Media Marketing, Content Creation', 'Google Analytics, Market Research', 6, 2, 2, 'Marketing Specialist', 1, 'Marketing', 1500);
+
+INSERT INTO Posts VALUES ('Amazon seeks a UX designer with experience in Figma and Sketch. Full-time position offering $140,000/year. Additional experience with InVision and Adobe XD is highly desirable.', 'Figma, Sketch, InVision, Adobe XD', 'HTML, CSS, JavaScript', 8, 3, 3, 'UX Designer', 0, 'Designing', 140000);
+
+INSERT INTO Posts VALUES ('Graphic design intern needed at a marketing agency. Part-time internship position offering $1,200/month. Ideal candidate has experience with Adobe Photoshop, Illustrator, and InDesign.', 'Adobe Photoshop, Illustrator', 'InDesign, Sketch', 6, 2, 4, 'Graphic Design Intern', 1, 'Designing', 1200);
+
+INSERT INTO Posts VALUES ('Facebook is hiring a data analyst with experience in SQL and Python. Full-time position offering $150,000/year. Additional experience with R and Tableau is highly desirable.', 'SQL, Python, R', 'Tableau, SAS', 8, 5, 5, 'Data Analyst', 0, 'Data Analysis', 150000);
+
+-- commit
+commit;
